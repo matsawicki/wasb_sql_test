@@ -1,15 +1,17 @@
-drop table if exists memory.default.employees;
+DROP TABLE IF EXISTS memory.default.employees;
 
-create table memory.default.employees (
-    employee_id tinyint,
-    first_name varchar(50),
-    last_name varchar(50),
-    job_title varchar(50),
-    manager_id tinyint
-);
+CREATE TABLE
+    memory.default.employees (
+        employee_id tinyint,
+        first_name varchar(50),
+        last_name varchar(50),
+        job_title varchar(50),
+        manager_id tinyint
+    );
 
-insert into memory.default.employees
-values 
+INSERT INTO
+    memory.default.employees
+VALUES
     (1, 'Ian', 'James', 'CEO', 4),
     (2, 'Umberto', 'Torrielli', 'CSO', 1),
     (3, 'Alex', 'Jacobson', 'MD EMEA', 2),

@@ -1,34 +1,53 @@
-drop table if exists memory.default.supplier;
+DROP TABLE IF exists memory.default.supplier
+CREATE TABLE
+    memory.default.supplier (supplier_id TINYINT, name VARCHAR);
 
-create table memory.default.supplier (
-    supplier_id tinyint,
-    name varchar
-)
+DROP TABLE IF exists memory.default.invoice
+CREATE TABLE
+    memory.default.invoice (
+        supplier_id TINYINT,
+        invoice_ammount DECIMAL(8, 2),
+        due_date DATE
+    );
 
-insert into memory.default.supplier (name) values
-('Party Animals'),
-('Catering Plus'),
-("Dave''s Discos"),
-('Entertainment tonight'),
-('Ice Ice Baby')
+-- Some dumb commet to make you think I used chatGPT.
+INSERT INTO
+    memory.default.supplier (supplier_id, name)
+SELECT
+    ROW_NUMBER() OVER (
+        ORDER BY
+            name
+    ) as supplier_id,
+    name
+FROM
+    (
+        VALUES
+            ('Catering Plus'),
+            ('Dave''s Discos'),
+            ('Entertainment tonight'),
+            ('Ice Ice Baby'),
+            ('Party Animals')
+    ) AS t (name);
 
-update memory.default.supplier set supplier_id = row_number() over(partition by name order by (select null))
-
-drop table if exists memory.default.invoice;
-
-create table if not exists memory.defaul.invoices (
-    id UUID default uuid(),
-    id_supplier_id tinyint,
-    invoice_items ARRAY(VARCHAR),
-    invoice_amount DECIMAL(10,2),
-    due_date_months INTEGER,
-    created_date TIMESTAMP default CURRENT_TIMESTAMP
-);
-
-insert into memory.defaul.invoices (id, id_supplier_id, invoice_items, invoice_amount, due_date_months) values
-(1, 5, ARRAY['Zebra', 'Lion', 'Giraffe', 'Hippo'], 6000.00, 3),
-(2, 2, ARRAY['Champagne', 'Whiskey', 'Vodka', 'Gin', 'Rum', 'Beer', 'Wine'], 2000.00, 2),
-(3, 2, ARRAY['Pizzas', 'Burgers', 'Hotdogs', 'Cauliflour Wings', 'Caviar'], 1500.00, 3),
-(4, 1, ARRAY['Dave', 'Dave Equipment'], 500.00, 1),
-(5, 3, ARRAY['Portable Lazer tag', 'go carts', 'virtual darts', 'virtual shooting', 'puppies'], 6000.00, 3),
-(6, 4, ARRAY['Ice Luge', 'Lifesize ice sculpture of Umberto'], 4000.00, 6);
+INSERT INTO
+    memory.default.invoice (supplier_id, invoice_ammount, due_date)
+SELECT
+    s.supplier_id,
+    t.invoice_amount,
+    CASE
+        WHEN t.due_date_months = 1 THEN LAST_DAY_OF_MONTH (CURRENT_DATE + INTERVAL '1' MONTH)
+        WHEN t.due_date_months = 2 THEN LAST_DAY_OF_MONTH (CURRENT_DATE + INTERVAL '2' MONTH)
+        WHEN t.due_date_months = 3 THEN LAST_DAY_OF_MONTH (CURRENT_DATE + INTERVAL '3' MONTH)
+        WHEN t.due_date_months = 6 THEN LAST_DAY_OF_MONTH (CURRENT_DATE + INTERVAL '6' MONTH)
+    END as due_date
+FROM
+    (
+        VALUES
+            ('Party Animals', 6000.00, 3),
+            ('Catering Plus', 2000.00, 2),
+            ('Catering Plus', 1500.00, 3),
+            ('Dave''s Discos', 500.00, 1),
+            ('Entertainment tonight', 6000.00, 3),
+            ('Ice Ice Baby', 4000.00, 6)
+    ) AS t (supplier_name, invoice_amount, due_date_months)
+    JOIN memory.default.supplier s ON s.name = t.supplier_name;

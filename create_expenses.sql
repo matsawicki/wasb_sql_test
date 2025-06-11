@@ -1,13 +1,15 @@
-drop table if exists memory.default.expense;
+DROP TABLE IF EXISTS memory.default.expense;
 
-create table memory.default.expense (
-    employee_id tinyint,
-    unit_price decimal(8, 2),
-    quantity tinyint
-);
+CREATE TABLE
+    memory.default.expense (
+        employee_id tinyint,
+        unit_price decimal(8, 2),
+        quantity tinyint
+    );
 
-insert into memory.default.expense
-values 
+INSERT INTO
+    memory.default.expense
+VALUES
     (3, 6.50, 14),
     (3, 11.00, 20),
     (3, 22.00, 18),
